@@ -21,6 +21,8 @@ func main() {
 	var (
 		router         = web.NewRouter()
 		port           = flag.String("port", ":3001", "set the port to listen on")
+		cert           = flag.String("cert", "server.crt", "SSL/TLS Certificate to HTTPS")
+		key            = flag.String("key", "server.key", "SSL/TLS Private Key for the Certificate")
 		namespace      = flag.String("namespace", "", "the namespace to target")
 		saTokenPath    = flag.String("satoken-path", "var/run/secrets/kubernetes.io/serviceaccount/token", "where on disk the service account token to use is ")
 		k8host         string
@@ -50,6 +52,11 @@ func main() {
 	)
 	tokenClientBuilder.SAToken = token
 
+	{
+		oauthHandler := web.NewOauthHandler(logger)
+		web.OauthRoute(router, oauthHandler)
+	}
+
 	//mobileapp handler
 	{
 		appHandler := web.NewMobileAppHandler(logger, tokenClientBuilder)
@@ -67,9 +74,9 @@ func main() {
 		web.SysRoute(router, sysHandler)
 	}
 
-	handler := web.BuildHTTPHandler(router, mwAccess)
+	handler := web.BuildHTTPHandler(router, nil)
 	logger.Info("starting server on port " + *port)
-	if err := http.ListenAndServe(*port, handler); err != nil {
+	if err := http.ListenAndServeTLS(*port, *cert, *key, handler); err != nil {
 		panic(err)
 	}
 }

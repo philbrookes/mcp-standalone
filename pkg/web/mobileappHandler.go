@@ -16,6 +16,18 @@ type MobileAppHandler struct {
 	tokenClientBuilder mobile.TokenScopedClientBuilder
 }
 
+// OauthHandler handle oauth actions
+type OauthHandler struct {
+	logger *logrus.Logger
+}
+
+// NewOauthHandler returns a new oauth handler
+func NewOauthHandler(logger *logrus.Logger) *OauthHandler {
+	return &OauthHandler{
+		logger: logger,
+	}
+}
+
 // NewMobileAppHandler returns a new mobile app handler
 func NewMobileAppHandler(logger *logrus.Logger, tokenClientBuilder mobile.TokenScopedClientBuilder) *MobileAppHandler {
 	return &MobileAppHandler{
